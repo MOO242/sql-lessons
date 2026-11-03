@@ -1,0 +1,55 @@
+SQL Lesson 6: Combining Conditions with AND, OR & NOT
+
+We might need to find reservations that are:
+
+confirmed AND high value
+from corporate OR group business
+NOT cancelled
+
+That’s where AND, OR, and NOT come in.
+AND → all conditions must be true
+
+SQL
+SELECT
+ reservation_id,
+ hotel_name,
+ room_revenue
+FROM reservations
+WHERE booking_status = 'Confirmed'
+ AND room_revenue > 1000;
+
+This returns reservations that are both confirmed and above 1,000 in room revenue.
+OR → at least one condition must be true
+
+SQL
+SELECT
+ reservation_id,
+ hotel_name,
+ market_segment
+FROM reservations
+WHERE market_segment = 'Corporate'
+ OR market_segment = 'Group';
+NOT → excludes a condition
+
+SQL
+SELECT
+ reservation_id,
+ hotel_name,
+ booking_status
+FROM reservations
+WHERE NOT booking_status = 'Cancelled';
+
+💡 Concept tip:
+Use parentheses when combining AND and OR. They make your business logic clear and prevent unexpected results.
+
+SQL
+WHERE booking_status = 'Confirmed'
+ AND (market_segment = 'Corporate'
+ OR market_segment = 'Group')
+
+⚠️ Real business consequence:
+A small mistake in Boolean logic can completely change the population behind a report. If you combine AND and OR incorrectly, you could include cancelled bookings or exclude valid revenue.
+
+SQL filtering isn't just about syntax. It’s about translating business rules accurately into data logic.
+
+Next lesson: Aggregating Data with COUNT, SUM, AVG, MIN &MAX
