@@ -1,0 +1,41 @@
+SQL Lesson 4: BETWEEN, IN, LIKE &ILIKE
+Real business questions rarely ask for one exact value.
+
+In hospitality analytics, we might need:
+
+📅 Bookings between two dates
+🏨 Reservations from selected market segments
+🔎 Guest or room names matching a pattern
+
+That's where these SQL operators come in:
+
+-- Range
+WHERE room_revenue BETWEEN 500 AND 1500
+ 
+-- List
+WHERE market_segment IN ('Transient', 'Group')
+ 
+-- Pattern
+WHERE room_type LIKE 'Deluxe%'
+ 
+-- Case-insensitive pattern
+
+WHERE guest_name ILIKE '%smith%'
+
+💡 Concept Tip
+
+BETWEEN → ranges
+IN → lists
+LIKE → patterns
+ILIKE → case-insensitive patterns
+
+And remember:
+
+% = zero or more characters
+_ = exactly one character
+
+⚠️ Real Business Consequence
+
+Filtering the wrong date range or missing a market segment doesn't just create a SQL mistake. It can change your reported bookings, revenue, and commercial insights.
+
+Next lesson: Aggregating Data with COUNT, SUM, AVG, MIN & MAX
