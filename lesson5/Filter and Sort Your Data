@@ -1,0 +1,24 @@
+SQL Lesson 5: Filter and Sort Your Data
+One of the most important SQL skills is also one of the simplest:
+
+Getting only the data you actually need.
+
+WHERE filters the rows.
+ORDER BY controls how the results are sorted.
+
+SELECT
+    reservation_id,
+    hotel_name,
+    room_revenue
+FROM reservations
+WHERE booking_status = 'Confirmed'
+  AND room_revenue > 1000
+ORDER BY room_revenue DESC;
+
+In this example, we’re looking only at confirmed, higher-value reservations, then ranking them from highest to lowest room revenue.
+
+💡 Concept tip: Your WHERE clause should reflect the business question you’re trying to answer.
+
+⚠️ Include the wrong rows, and even technically correct #SQL can produce a misleading business result.
+
+Next: AND, OR and NOT.
