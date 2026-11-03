@@ -50,7 +50,7 @@ Runs as-is in both Snowflake and PostgreSQL.
 | 1 | The four keywords | `SELECT`, `FROM`, `ORDER BY`, `LIMIT` | ✅ Done |
 | 2 | Filtering rows | `WHERE`, comparison operators | ✅ Done |
 | 3 | Combining conditions | `AND`, `OR`, `NOT` |  ✅ Done |
-| 4 | Ranges, lists, and patterns | `BETWEEN`, `IN`, `LIKE`, `ILIKE` | Planned |
+| 4 | Ranges, lists, and patterns | `BETWEEN`, `IN`, `LIKE`, `ILIKE` |  ✅ Done |
 | 5 | Unique rows | `DISTINCT` | Planned |
 | 6 | How SQL really runs | Execution order | Planned |
 | 7 | Snowflake vs PostgreSQL | Dialect differences | Planned |
