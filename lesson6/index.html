@@ -1,1 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL for Hospitality Analytics - Lesson 6: Combining conditions (AND, OR, NOT)</title>
+<style>
+:root{
+  --bg:#f3f5f7;--panel:#ffffff;--ink:#16212b;--muted:#566574;--line:#d6dde3;--soft:#eaeff3;
+  --accent:#0b6b5b;--accent-ink:#ffffff;--accent-soft:#dff1ec;
+  --t-bg:#d5efe3;--t-fg:#0a5a40;--f-bg:#f5dadd;--f-fg:#8c2738;--n-bg:#fbe8c4;--n-fg:#855000;
+  --code-bg:#f0f3f6;--err-bg:#fbe4e6;--err-fg:#85202f;--warn-bg:#fdf0d2;--warn-fg:#7a4a00;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e151c;--panel:#151e27;--ink:#e5ecf2;--muted:#94a3b0;--line:#27343f;--soft:#1c2832;
+    --accent:#45c2a3;--accent-ink:#06231c;--accent-soft:#143a31;
+    --t-bg:#12402f;--t-fg:#8fe3bf;--f-bg:#4a1f27;--f-fg:#f2a3b0;--n-bg:#4a3510;--n-fg:#f4cb7b;
+    --code-bg:#1b2630;--err-bg:#4a1f27;--err-fg:#f5b3bd;--warn-bg:#3f3010;--warn-fg:#f3cf86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e151c;--panel:#151e27;--ink:#e5ecf2;--muted:#94a3b0;--line:#27343f;--soft:#1c2832;
+  --accent:#45c2a3;--accent-ink:#06231c;--accent-soft:#143a31;
+  --t-bg:#12402f;--t-fg:#8fe3bf;--f-bg:#4a1f27;--f-fg:#f2a3b0;--n-bg:#4a3510;--n-fg:#f4cb7b;
+  --code-bg:#1b2630;--err-bg:#4a1f27;--err-fg:#f5b3bd;--warn-bg:#3f3010;--warn-fg:#f3cf86;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans)}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 64px}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0}
+h1{font-size:clamp(30px,5vw,44px);letter-spacing:-.01em}
+h2{font-size:24px;margin-bottom:6px}
+h3{font-size:17px}
+p{margin:0}
+code,pre,textarea,.mono{font-family:var(--mono)}
+code{background:var(--code-bg);padding:1px 6px;border-radius:4px;font-size:.88em}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.series{color:var(--muted);font-size:15px;margin-bottom:6px}
+.lede{color:var(--muted);max-width:60ch;margin-top:10px}
+.kw{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.kw span{font-family:var(--mono);font-size:14px;border:1px solid var(--line);background:var(--panel);padding:3px 11px;border-radius:999px}
+.theme{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:6px 12px;font-size:14px}
+
+section{margin-top:44px}
+.sec-sub{color:var(--muted);margin-bottom:16px;max-width:64ch}
+
+.concepts{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:22px 28px}
+.concept{border-left:3px solid var(--accent);padding:2px 0 2px 14px}
+.concept h3{font-family:var(--mono);font-size:16px;margin-bottom:4px}
+.concept p{color:var(--muted);font-size:15px;margin-bottom:8px}
+.concept pre{margin:0;background:var(--code-bg);padding:8px 10px;border-radius:6px;font-size:13px;overflow-x:auto;white-space:pre-wrap}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.schema{font-size:14px;color:var(--muted);margin-bottom:14px}
+.schema b{color:var(--ink);font-family:var(--mono);font-weight:600}
+.schema .tbl{margin-bottom:6px}
+.colchip{font-family:var(--mono);font-size:12.5px;border:1px solid var(--line);background:var(--soft);color:var(--ink);padding:1px 7px;border-radius:5px;margin:2px 3px 2px 0;cursor:pointer}
+.colchip:hover{border-color:var(--accent)}
+.examples{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 13px;font-size:14px}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+textarea.ed{width:100%;min-height:150px;resize:vertical;border:1px solid var(--line);border-radius:8px;background:var(--code-bg);color:var(--ink);padding:12px 14px;font-size:14.5px;line-height:1.6;tab-size:2}
+.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:7px 18px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);font-weight:500}
+.btn.ghost:hover{border-color:var(--accent)}
+.kbd{color:var(--muted);font-size:13px}
+.note{margin-top:14px;padding:10px 14px;border-radius:8px;background:var(--accent-soft);font-size:15px}
+.err{margin-top:14px;padding:10px 14px;border-radius:8px;background:var(--err-bg);color:var(--err-fg);font-size:15px}
+.warn{margin-top:12px;padding:9px 14px;border-radius:8px;background:var(--warn-bg);color:var(--warn-fg);font-size:14.5px}
+.status{margin:16px 0 8px;font-size:14.5px;color:var(--muted)}
+.status b{color:var(--ink)}
+
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px;max-height:380px;overflow-y:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:6px 11px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{position:sticky;top:0;background:var(--soft);font-family:var(--mono);font-size:12.5px;font-weight:600;z-index:1}
+tr:last-child td{border-bottom:0}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+.null{font-family:var(--mono);font-size:12px;color:var(--n-fg);background:var(--n-bg);padding:0 6px;border-radius:4px}
+.empty{padding:18px;color:var(--muted);text-align:center}
+
+.reads{margin-top:18px}
+.reads h3{font-size:15px;margin-bottom:6px;font-family:var(--sans);font-weight:600}
+.reads pre{margin:0;background:var(--code-bg);padding:10px 14px;border-radius:8px;font-size:13.5px;line-height:1.55;overflow-x:auto}
+.reads .op{color:var(--accent);font-weight:700}
+.reads .line{color:var(--muted);font-size:13.5px;margin-bottom:6px;font-family:var(--mono);word-break:break-word}
+
+.v{display:inline-block;min-width:54px;text-align:center;font-family:var(--mono);font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px}
+.v.T{background:var(--t-bg);color:var(--t-fg)}
+.v.F{background:var(--f-bg);color:var(--f-fg)}
+.v.N{background:var(--n-bg);color:var(--n-fg)}
+tr.kept td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+tr.dim td.val{color:var(--muted)}
+.tog{display:flex;gap:8px;align-items:center;margin-top:16px;font-size:15px}
+.tog input{width:17px;height:17px;accent-color:var(--accent)}
+.legend{font-size:13.5px;color:var(--muted);margin:8px 0 8px}
+.legend .v{margin-right:4px}
+
+.ch-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.prog{font-size:15px;color:var(--muted)}
+.prog b{color:var(--accent)}
+.chal{margin-top:14px}
+.chal .ttl{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.chal .ttl h3{font-family:var(--sans);font-size:16px}
+.done{font-size:13px;font-weight:700;color:var(--t-fg);background:var(--t-bg);padding:1px 10px;border-radius:999px}
+.chal p.q{color:var(--muted);margin:4px 0 10px;font-size:15px}
+.chal textarea.ed{min-height:92px}
+.fb{margin-top:12px;padding:9px 14px;border-radius:8px;font-size:15px}
+.fb.ok{background:var(--t-bg);color:var(--t-fg)}
+.fb.no{background:var(--f-bg);color:var(--f-fg)}
+.reveal{margin-top:10px;font-size:14.5px;color:var(--muted)}
+.reveal pre{margin:6px 0 0;background:var(--code-bg);color:var(--ink);padding:9px 12px;border-radius:8px;font-size:13px;white-space:pre-wrap}
+
+footer{margin-top:48px;color:var(--muted);font-size:14.5px;border-top:1px solid var(--line);padding-top:16px;max-width:70ch}
+footer p+p{margin-top:6px}
+@media (max-width:560px){.wrap{padding:24px 14px 48px}.panel{padding:14px}}
+@media (prefers-reduced-motion:no-preference){.btn,.chip,.colchip{transition:border-color .15s,background .15s}}
+
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* ---------- Sample data ---------- */
+function parseRows(cols, text) {
+  return text.trim().split('\n').map(line => {
+    const parts = line.split('|');
+    const row = {};
+    cols.forEach((c, i) => {
+      let v = parts[i] === undefined ? '' : parts[i].trim();
+      if (v === '') row[c.name] = null;
+      else row[c.name] = c.type === 'number' ? Number(v) : v;
+    });
+    return row;
+  });
+}
+
+const TABLES = {};
+(function buildTables() {
+  const resCols = [
+    { name: 'reservation_id', type: 'number' }, { name: 'hotel_name', type: 'text' },
+    { name: 'country', type: 'text' }, { name: 'segment', type: 'text' },
+    { name: 'channel', type: 'text' }, { name: 'booking_status', type: 'text' },
+    { name: 'guest_name', type: 'text' }, { name: 'guest_email', type: 'text' },
+    { name: 'check_in', type: 'date' }, { name: 'nights', type: 'number' },
+    { name: 'adr', type: 'number' }, { name: 'room_type', type: 'text' },
+    { name: 'rate_code', type: 'text' }
+  ];
+  const resData = `
+1001|Marina Bay Hotel Dubai|UAE|Transient|Direct|Confirmed|Khalid Al Hashimi|khalid.h@gmail.com|2026-12-18|3|720|K1|BAR
+1002|Marina Bay Hotel Dubai|UAE|Group|Group Sales|Confirmed|Sarah Alvarez|sarah@eventsco.ae|2026-12-22|4|540|Q2|GRP-CONF
+1003|Desert Palm Resort|UAE|Transient|OTA|Cancelled|john smith|jsmith@outlook.com|2026-12-27|5|880|S1|PROMO-WINTER
+1004|Desert Palm Resort|UAE|Corporate|GDS|Confirmed|Fatima Al Mansoori|f.mansoori@acme.ae|2026-11-10|2|610|K1|CORP-ACME
+1005|Abu Dhabi Skyline Hotel|UAE|Transient|Direct|No-Show|Omar Hassan|omar.hassan@gmail.com|2026-11-15|1|450|K2|BAR
+1006|Abu Dhabi Skyline Hotel|UAE|Wholesale|Wholesale|Confirmed|Tour Desk Emirates|bookings@emiratestours.ae|2026-12-05|7|310|T1|WHS-NET
+1007|Corniche Grand Hotel Doha|Qatar|Transient|OTA|Confirmed|Maria Gonzalez|maria.g@yahoo.com|2026-12-20|3|690|K1|PROMO-WINTER
+1008|Corniche Grand Hotel Doha|Qatar|Corporate|GDS|Confirmed|Ahmed Al Thani|a.althani@delta.qa|2026-11-24|2|740|K2|CORP-DELTA
+1009|Corniche Grand Hotel Doha|Qatar|Group|Group Sales|Cancelled|Delta Events|events@delta.qa|2026-12-28|6|520|Q1|GRP-CONF
+1010|Al Noor Business Hotel|KSA|Corporate|GDS|Confirmed|Abdullah Al Qahtani|abdullah@acme.sa|2026-11-03|4|580|K1|CORP-ACME
+1011|Al Noor Business Hotel|KSA|Transient|Direct||Layla Ibrahim|layla.i@gmail.com|2026-11-19|2|510|Q2|BAR
+1012|Riyadh Gate Hotel|KSA|Transient|OTA|Confirmed|Peter Muller|pmuller@gmail.com|2026-12-01|3|470|K1|BAR
+1013|Riyadh Gate Hotel|KSA|Group|Group Sales|Confirmed|Saudi Pharma Summit|summit@sps.sa|2026-12-10|5|430|Q2|GRP-CONF
+1014|Riyadh Gate Hotel|KSA|Wholesale|Wholesale|Cancelled|Gulf Travel Net|ops@gulftravel.com|2026-12-12|10|280|T1|WHS-NET
+1015|Nile View Resort Cairo|Egypt|Transient|OTA|Confirmed|Yasmin Farouk|yasmin.f@gmail.com|2026-12-24|7|260|K1|PROMO-WINTER
+1016|Nile View Resort Cairo|Egypt|Transient|Direct|Confirmed|Mahmoud Ali|mahmoud.ali@gmail.com|2026-12-30|4|240|K2|BAR
+1017|Nile View Resort Cairo|Egypt|Corporate|GDS||Hana Kamel|hana@acme.eg|2026-11-08|3|310|Q1|CORP-ACME
+1018|Nile View Resort Cairo|Egypt|Group|Group Sales|Confirmed|Cairo Tech Week|info@cairotech.eg|2026-11-22|3|220|Q2|GRP-CONF
+1019|Gulf Pearl Resort Muscat|Oman|Transient|OTA|Confirmed|Emma Wilson|emma.wilson@outlook.com|2026-12-26|6|640|S1|PROMO-WINTER
+1020|Gulf Pearl Resort Muscat|Oman|Transient|Direct|No-Show|Salim Al Busaidi|salim@gmail.com|2026-12-14|2|590|K1|BAR
+1021|Gulf Pearl Resort Muscat|Oman|Corporate|GDS|Confirmed|Nasser Al Harthy|nasser@delta.om|2026-11-30|3|600|K2|CORP-DELTA
+1022|Marina Bay Hotel Dubai|UAE|Transient|OTA|Confirmed|Alice Cooper|alice.c@gmail.com|2026-12-31|2|950|S1|PROMO-WINTER
+1023|Marina Bay Hotel Dubai|UAE|Corporate|Direct|Confirmed|Rashed Al Maktoum|rashed@acme.ae|2026-11-12|1|650|K1|CORP-ACME
+1024|Desert Palm Resort|UAE|Group|Group Sales|Confirmed|Dubai Wedding Planners|hello@dubaiweddings.ae|2026-12-19|3|560|Q2|GRP-CONF
+1025|Desert Palm Resort|UAE|Transient|Direct|Cancelled|Noura Salem|noura.s@gmail.com|2026-12-06|4|700|K1|BAR
+1026|Abu Dhabi Skyline Hotel|UAE|Transient|OTA||david lee|dlee@yahoo.com|2026-11-28|2|480|K2|BAR
+1027|Abu Dhabi Skyline Hotel|UAE|Corporate|GDS|Confirmed|Majid Al Falasi|majid@delta.ae|2026-11-06|5|520|K1|CORP-DELTA
+1028|Corniche Grand Hotel Doha|Qatar|Transient|Direct|Confirmed|Sophie Martin|sophie.m@gmail.com|2026-12-15|4|710|K1|BAR
+1029|Al Noor Business Hotel|KSA|Transient|OTA|Cancelled|Tariq Aziz|tariq@yahoo.com|2026-12-08|2|490|Q1|PROMO-WINTER
+1030|Al Noor Business Hotel|KSA|Group|Group Sales|Confirmed|Alnoor Medical Congress|congress@anmc.sa|2026-12-17|3|450|Q2|GRP-CONF
+1031|Riyadh Gate Hotel|KSA|Corporate|Direct|Confirmed|Reem Al Otaibi|reem@acme.sa|2026-11-17|2|530|K2|CORP-ACME
+1032|Gulf Pearl Resort Muscat|Oman|Group|Group Sales|Confirmed|Oman Dive Club|club@omandive.om|2026-12-21|4|500|Q1|GRP-CONF
+1033|Nile View Resort Cairo|Egypt|Wholesale|Wholesale|Confirmed|Pyramids Tours|res@pyramidstours.eg|2026-12-02|9|150|T1|WHS-NET
+1034|Desert Palm Resort|UAE|Transient|OTA|Confirmed|Chloe Brown|chloe.b@outlook.com|2026-12-23|5|820|S1|PROMO-WINTER
+1035|Marina Bay Hotel Dubai|UAE|Transient|Direct|Confirmed|Ali Karim|ali.karim@gmail.com|2026-11-21|2|680|K2|BAR
+1036|Abu Dhabi Skyline Hotel|UAE|Transient|Direct|Confirmed|Hessa Al Suwaidi|hessa@gmail.com|2026-12-29|3|610|Q2|BAR`;
+  TABLES.reservations = { name: 'reservations', cols: resCols, rows: parseRows(resCols, resData) };
+
+  const hotCols = [
+    { name: 'hotel_name', type: 'text' }, { name: 'country', type: 'text' },
+    { name: 'rooms', type: 'number' }, { name: 'occupancy_pct', type: 'number' },
+    { name: 'adr', type: 'number' }, { name: 'revpar', type: 'number' }
+  ];
+  const hotRaw = `
+Marina Bay Hotel Dubai|UAE|320|82|690
+Desert Palm Resort|UAE|210|74|820
+Abu Dhabi Skyline Hotel|UAE|280|69|510
+Palm Jumeirah Resort|UAE|400|78|1150
+Downtown Business Hotel Dubai|UAE|250|85|600
+Sharjah Creek Hotel|UAE|180|66|330
+Al Ain Oasis Hotel|UAE|150|61|380
+Corniche Grand Hotel Doha|Qatar|300|72|700
+Al Noor Business Hotel|KSA|220|70|520
+Riyadh Gate Hotel|KSA|260|64|450
+Nile View Resort Cairo|Egypt|340|58|250
+Gulf Pearl Resort Muscat|Oman|190|67|620`;
+  const hotRows = hotRaw.trim().split('\n').map(l => {
+    const p = l.split('|');
+    const occ = Number(p[3]), adr = Number(p[4]);
+    return { hotel_name: p[0], country: p[1], rooms: Number(p[2]), occupancy_pct: occ, adr: adr, revpar: Math.round(adr * occ / 100) };
+  });
+  TABLES.hotel_performance = { name: 'hotel_performance', cols: hotCols, rows: hotRows };
+})();
+
+/* ---------- Mini SQL engine (SELECT / FROM / WHERE / ORDER BY / LIMIT) ---------- */
+const RESERVED = new Set(['SELECT', 'FROM', 'WHERE', 'ORDER', 'BY', 'LIMIT', 'AND', 'OR', 'NOT', 'BETWEEN', 'IN', 'LIKE', 'ILIKE', 'IS', 'NULL', 'TRUE', 'FALSE', 'AS', 'ASC', 'DESC']);
+class SqlError extends Error {}
+const fail = m => { throw new SqlError(m); };
+
+function tokenize(sql) {
+  sql = sql.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
+  const toks = []; const n = sql.length; let i = 0;
+  while (i < n) {
+    const c = sql[i];
+    if (/\s/.test(c)) { i++; continue; }
+    if (c === '-' && sql[i + 1] === '-') { while (i < n && sql[i] !== '\n') i++; continue; }
+    if (c === "'") {
+      let j = i + 1, s = '';
+      for (;;) {
+        if (j >= n) fail("A text value is missing its closing quote. Every string needs a quote on both sides, like 'UAE'.");
+        if (sql[j] === "'") { if (sql[j + 1] === "'") { s += "'"; j += 2; continue; } break; }
+        s += sql[j++];
+      }
+      toks.push({ t: 'str', v: s }); i = j + 1; continue;
+    }
+    if (c === '"') {
+      const j = sql.indexOf('"', i + 1);
+      if (j < 0) fail('A double-quoted name is missing its closing quote.');
+      toks.push({ t: 'id', v: sql.slice(i + 1, j), q: true }); i = j + 1; continue;
+    }
+    if (/[0-9]/.test(c) || (c === '.' && /[0-9]/.test(sql[i + 1] || ''))) {
+      let j = i; while (j < n && /[0-9.]/.test(sql[j])) j++;
+      toks.push({ t: 'num', v: Number(sql.slice(i, j)) }); i = j; continue;
+    }
+    if (/[A-Za-z_]/.test(c)) {
+      let j = i; while (j < n && /[A-Za-z0-9_$]/.test(sql[j])) j++;
+      toks.push({ t: 'id', v: sql.slice(i, j) }); i = j; continue;
+    }
+    const two = sql.substr(i, 2);
+    if (['<=', '>=', '<>', '!='].includes(two)) { toks.push({ t: 'op', v: two }); i += 2; continue; }
+    if ('=<>(),*;-'.includes(c)) { toks.push({ t: 'op', v: c }); i++; continue; }
+    fail(`Unexpected character "${c}".`);
+  }
+  return toks;
+}
+
+function parseSql(sql) {
+  const toks = tokenize(sql); let p = 0;
+  const isKw = k => { const t = toks[p]; return t && t.t === 'id' && !t.q && t.v.toUpperCase() === k; };
+  const isOp = o => { const t = toks[p]; return t && t.t === 'op' && t.v === o; };
+  const show = () => !toks[p] ? 'the end of the query' : toks[p].t === 'str' ? `'${toks[p].v}'` : String(toks[p].v);
+  const expectKw = (k, hint) => { if (!isKw(k)) fail(`Expected ${k} but found ${show()}.${hint ? ' ' + hint : ''}`); p++; };
+
+  function parseOr() { const items = [parseAnd()]; while (isKw('OR')) { p++; items.push(parseAnd()); } return items.length > 1 ? { k: 'or', items } : items[0]; }
+  function parseAnd() { const items = [parseNot()]; while (isKw('AND')) { p++; items.push(parseNot()); } return items.length > 1 ? { k: 'and', items } : items[0]; }
+  function parseNot() { if (isKw('NOT')) { p++; return { k: 'not', e: parseNot() }; } return parsePred(); }
+  function parsePred() {
+    const l = parsePrimary();
+    const t = toks[p];
+    if (t && t.t === 'op' && ['=', '<>', '!=', '<', '>', '<=', '>='].includes(t.v)) {
+      p++; const r = parsePrimary();
+      return { k: 'cmp', op: t.v === '!=' ? '<>' : t.v, l, r };
+    }
+    let neg = false;
+    if (isKw('NOT')) {
+      const nx = toks[p + 1];
+      if (nx && nx.t === 'id' && ['BETWEEN', 'IN', 'LIKE', 'ILIKE'].includes(nx.v.toUpperCase())) { neg = true; p++; }
+    }
+    if (isKw('BETWEEN')) {
+      p++; const lo = parsePrimary();
+      if (!isKw('AND')) fail(`BETWEEN needs the form BETWEEN low AND high, but found ${show()} after the low value.`);
+      p++; const hi = parsePrimary();
+      return { k: 'between', neg, e: l, lo, hi };
+    }
+    if (isKw('IN')) {
+      p++;
+      if (!isOp('(')) fail("IN needs a list in brackets, like IN ('UAE', 'Qatar').");
+      p++; const list = [parsePrimary()];
+      while (isOp(',')) { p++; list.push(parsePrimary()); }
+      if (!isOp(')')) fail('The IN list is missing its closing bracket, or a comma between values.');
+      p++;
+      return { k: 'in', neg, e: l, list };
+    }
+    if (isKw('LIKE') || isKw('ILIKE')) {
+      const ci = isKw('ILIKE'); p++;
+      const pat = parsePrimary();
+      return { k: 'like', neg, ci, e: l, pat };
+    }
+    if (isKw('IS')) {
+      p++; let n = false;
+      if (isKw('NOT')) { p++; n = true; }
+      if (!isKw('NULL')) fail('After IS, write NULL or NOT NULL.');
+      p++;
+      return { k: 'isnull', neg: n, e: l };
+    }
+    return l;
+  }
+  function parsePrimary() {
+    const t = toks[p];
+    if (!t) fail('The query ended early. Something is missing after the last keyword or operator.');
+    if (t.t === 'op' && t.v === '(') {
+      p++; const e = parseOr();
+      if (!isOp(')')) fail('A bracket was opened but never closed. Add the missing ")".');
+      p++; return Object.assign({}, e, { paren: true });
+    }
+    if (t.t === 'op' && t.v === '-') {
+      p++; const nx = toks[p];
+      if (!nx || nx.t !== 'num') fail('A minus sign must be followed by a number.');
+      p++; return { k: 'lit', v: -nx.v };
+    }
+    if (t.t === 'num') { p++; return { k: 'lit', v: t.v }; }
+    if (t.t === 'str') { p++; return { k: 'lit', v: t.v }; }
+    if (t.t === 'id') {
+      const u = t.v.toUpperCase();
+      if (!t.q) {
+        if (u === 'NULL') { p++; return { k: 'lit', v: null }; }
+        if (u === 'TRUE') { p++; return { k: 'lit', v: true }; }
+        if (u === 'FALSE') { p++; return { k: 'lit', v: false }; }
+        if (RESERVED.has(u)) fail(`Unexpected ${t.v}. A column name or a value was expected here.`);
+        const nx = toks[p + 1];
+        if (nx && nx.t === 'op' && nx.v === '(') fail(`Functions like ${t.v}(...) aren't supported in this practice tool yet. Stick to columns and values.`);
+      }
+      p++; return { k: 'col', name: t.v };
+    }
+    fail(`Unexpected ${show()}.`);
+  }
+
+  expectKw('SELECT', 'Every query starts with SELECT.');
+  let cols;
+  if (isOp('*')) { p++; cols = '*'; }
+  else {
+    cols = [];
+    for (;;) {
+      if (cols.length && isKw('FROM')) fail('There is an extra comma before FROM.');
+      const t = toks[p];
+      if (!t || t.t !== 'id' || (!t.q && RESERVED.has(t.v.toUpperCase()))) fail(`Expected a column name in the SELECT list but found ${show()}.`);
+      const nx = toks[p + 1];
+      if (nx && nx.t === 'op' && nx.v === '(') fail(`Functions like ${t.v}(...) aren't supported in this practice tool yet. Select plain columns.`);
+      p++;
+      let alias = null;
+      if (isKw('AS')) { p++; const a = toks[p]; if (!a || a.t !== 'id') fail('Expected a name after AS.'); alias = a.v; p++; }
+      cols.push({ name: t.v, alias });
+      if (isOp(',')) { p++; continue; }
+      break;
+    }
+  }
+  expectKw('FROM', 'Did you forget a comma between two columns?');
+  const tt = toks[p];
+  if (!tt || tt.t !== 'id') fail('Expected a table name after FROM.');
+  p++;
+  const table = tt.v;
+  let where = null, order = [], limit = null, last = 'from';
+  if (isKw('WHERE')) { p++; where = parseOr(); last = 'where'; }
+  if (isKw('ORDER')) {
+    p++; expectKw('BY');
+    for (;;) {
+      const t = toks[p];
+      if (!t || t.t !== 'id') fail('Expected a column name after ORDER BY.');
+      p++;
+      let dir = 'ASC';
+      if (isKw('ASC')) p++; else if (isKw('DESC')) { dir = 'DESC'; p++; }
+      order.push({ name: t.v, dir });
+      if (isOp(',')) { p++; continue; }
+      break;
+    }
+    last = 'order';
+  }
+  if (isKw('LIMIT')) {
+    p++; const t = toks[p];
+    if (!t || t.t !== 'num' || !Number.isInteger(t.v) || t.v < 0) fail('LIMIT must be followed by a whole number, like LIMIT 5.');
+    p++; limit = t.v; last = 'limit';
+  }
+  if (isOp(';')) p++;
+  if (p < toks.length) {
+    fail(`Unexpected ${show()}. ` + (last === 'where' ? 'Conditions need AND or OR between them.' : 'Keep the clause order: SELECT, FROM, WHERE, ORDER BY, LIMIT.'));
+  }
+  return { cols, table, where, order, limit };
+}
+
+/* --- evaluation with three-valued logic --- */
+function cmpVals(a, b) {
+  if (typeof a === 'number' && typeof b === 'number') return a - b;
+  if (typeof a === 'number' && typeof b === 'string' && b.trim() !== '' && !isNaN(Number(b))) return a - Number(b);
+  if (typeof b === 'number' && typeof a === 'string' && a.trim() !== '' && !isNaN(Number(a))) return Number(a) - b;
+  const x = String(a), y = String(b);
+  return x < y ? -1 : x > y ? 1 : 0;
+}
+function like(val, pat, ci) {
+  let re = '';
+  for (const ch of String(pat)) {
+    if (ch === '%') re += '[\\s\\S]*';
+    else if (ch === '_') re += '[\\s\\S]';
+    else re += ch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  return new RegExp('^' + re + '$', ci ? 'i' : '').test(String(val));
+}
+const and3 = (a, b) => (a === false || b === false) ? false : (a === null || b === null) ? null : true;
+const not3 = a => a === null ? null : !a;
+function asBool(v) {
+  if (v === null || typeof v === 'boolean') return v;
+  fail('WHERE needs a true/false condition, like nights > 3. A plain column or value is not a condition.');
+}
+function ev(n, row) {
+  switch (n.k) {
+    case 'lit': return n.v;
+    case 'col': { const v = row[n.name.toLowerCase()]; return v === undefined ? null : v; }
+    case 'and': { let r = true; for (const it of n.items) { const v = asBool(ev(it, row)); if (v === false) return false; if (v === null) r = null; } return r; }
+    case 'or': { let r = false; for (const it of n.items) { const v = asBool(ev(it, row)); if (v === true) return true; if (v === null) r = null; } return r; }
+    case 'not': return not3(asBool(ev(n.e, row)));
+    case 'cmp': {
+      const a = ev(n.l, row), b = ev(n.r, row);
+      if (a === null || b === null) return null;
+      const c = cmpVals(a, b);
+      return { '=': c === 0, '<>': c !== 0, '<': c < 0, '>': c > 0, '<=': c <= 0, '>=': c >= 0 }[n.op];
+    }
+    case 'between': {
+      const x = ev(n.e, row), lo = ev(n.lo, row), hi = ev(n.hi, row);
+      const ge = (x === null || lo === null) ? null : cmpVals(x, lo) >= 0;
+      const le = (x === null || hi === null) ? null : cmpVals(x, hi) <= 0;
+      const r = and3(ge, le);
+      return n.neg ? not3(r) : r;
+    }
+    case 'in': {
+      const x = ev(n.e, row);
+      if (x === null) return null;
+      let sawNull = false, hit = false;
+      for (const it of n.list) { const v = ev(it, row); if (v === null) sawNull = true; else if (cmpVals(x, v) === 0) { hit = true; break; } }
+      const r = hit ? true : sawNull ? null : false;
+      return n.neg ? not3(r) : r;
+    }
+    case 'like': {
+      const x = ev(n.e, row), pt = ev(n.pat, row);
+      if (x === null || pt === null) return null;
+      const r = like(x, pt, n.ci);
+      return n.neg ? !r : r;
+    }
+    case 'isnull': { const x = ev(n.e, row); const r = x === null; return n.neg ? !r : r; }
+  }
+  fail('Unsupported expression.');
+}
+
+/* --- helpers for display --- */
+function fmt(n, top) {
+  const q = v => v === null ? 'NULL' : typeof v === 'string' ? "'" + v.replace(/'/g, "''") + "'" : String(v);
+  switch (n.k) {
+    case 'lit': return q(n.v);
+    case 'col': return n.name.toLowerCase();
+    case 'cmp': return `${fmt(n.l)} ${n.op} ${fmt(n.r)}`;
+    case 'between': return `${fmt(n.e)} ${n.neg ? 'NOT ' : ''}BETWEEN ${fmt(n.lo)} AND ${fmt(n.hi)}`;
+    case 'in': return `${fmt(n.e)} ${n.neg ? 'NOT ' : ''}IN (${n.list.map(x => fmt(x)).join(', ')})`;
+    case 'like': return `${fmt(n.e)} ${n.neg ? 'NOT ' : ''}${n.ci ? 'ILIKE' : 'LIKE'} ${fmt(n.pat)}`;
+    case 'isnull': return `${fmt(n.e)} IS ${n.neg ? 'NOT ' : ''}NULL`;
+    case 'not': return `NOT ${fmt(n.e)}`;
+    case 'and': case 'or': {
+      const s = n.items.map(x => fmt(x)).join(n.k === 'and' ? ' AND ' : ' OR ');
+      return top ? s : '(' + s + ')';
+    }
+  }
+}
+function treeLines(n, prefix, isLast, isRoot) {
+  const label = n.k === 'and' ? 'AND' : n.k === 'or' ? 'OR' : n.k === 'not' ? 'NOT' : fmt(n, true);
+  const out = [{ prefix: isRoot ? '' : prefix + (isLast ? '\u2514\u2500 ' : '\u251C\u2500 '), label, op: ['and', 'or', 'not'].includes(n.k) }];
+  const kids = (n.k === 'and' || n.k === 'or') ? n.items : n.k === 'not' ? [n.e] : [];
+  const np = isRoot ? '' : prefix + (isLast ? '   ' : '\u2502  ');
+  kids.forEach((c, i) => out.push(...treeLines(c, np, i === kids.length - 1, false)));
+  return out;
+}
+function leaves(n) {
+  if (n.k === 'and' || n.k === 'or') return n.items.flatMap(leaves);
+  if (n.k === 'not') return leaves(n.e);
+  return [n];
+}
+function colsIn(n, set) {
+  if (n.k === 'col') set.add(n.name.toLowerCase());
+  else if (n.k === 'and' || n.k === 'or') n.items.forEach(x => colsIn(x, set));
+  else if (n.k === 'not' || n.k === 'isnull') colsIn(n.e, set);
+  else if (n.k === 'cmp') { colsIn(n.l, set); colsIn(n.r, set); }
+  else if (n.k === 'between') { colsIn(n.e, set); colsIn(n.lo, set); colsIn(n.hi, set); }
+  else if (n.k === 'in') { colsIn(n.e, set); n.list.forEach(x => colsIn(x, set)); }
+  else if (n.k === 'like') { colsIn(n.e, set); colsIn(n.pat, set); }
+  return set;
+}
+function relyOnPrecedence(n) {
+  if (!n) return false;
+  if (n.k === 'or') return n.items.some(x => (x.k === 'and' && !x.paren) || relyOnPrecedence(x));
+  if (n.k === 'and') return n.items.some(relyOnPrecedence);
+  if (n.k === 'not') return relyOnPrecedence(n.e);
+  return false;
+}
+
+function runQuery(sql) {
+  if (!sql.trim()) fail('Type a query first.');
+  const q = parseSql(sql);
+  const tbl = TABLES[q.table.toLowerCase()];
+  if (!tbl) fail(`Table "${q.table}" doesn't exist here. Available tables: ${Object.keys(TABLES).join(', ')}.`);
+  const known = new Set(tbl.cols.map(c => c.name));
+  const check = name => { if (!known.has(name.toLowerCase())) fail(`Column "${name}" doesn't exist in ${tbl.name}. Available columns: ${tbl.cols.map(c => c.name).join(', ')}.`); };
+  if (q.cols !== '*') q.cols.forEach(c => check(c.name));
+  if (q.where) colsIn(q.where, new Set()).forEach(check);
+  q.order.forEach(o => check(o.name));
+
+  let kept = tbl.rows;
+  let verdicts = null;
+  if (q.where) {
+    verdicts = tbl.rows.map(r => asBool(ev(q.where, r)));
+    kept = tbl.rows.filter((r, i) => verdicts[i] === true);
+  }
+  const afterWhere = kept.length;
+  if (q.order.length) {
+    kept = kept.slice().sort((a, b) => {
+      for (const o of q.order) {
+        const k = o.name.toLowerCase(); const x = a[k], y = b[k];
+        let c;
+        if (x === null && y === null) c = 0; else if (x === null) c = 1; else if (y === null) c = -1; else c = cmpVals(x, y);
+        if (c !== 0) return o.dir === 'DESC' ? -c : c;
+      }
+      return 0;
+    });
+  }
+  if (q.limit !== null) kept = kept.slice(0, q.limit);
+  const outCols = q.cols === '*' ? tbl.cols.map(c => c.name) : q.cols.map(c => c.alias || tbl.cols.find(x => x.name === c.name.toLowerCase()).name);
+  const keys = q.cols === '*' ? tbl.cols.map(c => c.name) : q.cols.map(c => c.name.toLowerCase());
+  const rows = kept.map(r => keys.map(k => r[k]));
+  return { q, tbl, cols: outCols, rows, afterWhere, total: tbl.rows.length, verdicts };
+}
+
+function traceFor(res) {
+  const { q, tbl } = res;
+  if (!q.where) return null;
+  const lv = leaves(q.where);
+  const refd = Array.from(colsIn(q.where, new Set())).slice(0, 4);
+  const idCol = tbl.cols[0].name;
+  const showCols = [idCol].concat(refd.filter(c => c !== idCol));
+  const useLeaves = lv.length <= 6 && !(lv.length === 1 && q.where.k !== 'not');
+  const rows = tbl.rows.map((r, i) => ({
+    vals: showCols.map(c => r[c]),
+    leaf: useLeaves ? lv.map(l => ev(l, r)) : [],
+    final: res.verdicts[i]
+  }));
+  return { showCols, leafLabels: useLeaves ? lv.map(l => fmt(l, true)) : [], rows };
+}
+
+const CFG = {
+  n: 3,
+  title: 'Combining conditions',
+  lede: 'One condition rarely answers a real question. Revenue and reservations questions need several at once: which country, which segment, which status. AND, OR and NOT let you stack them.',
+  kw: ['AND', 'OR', 'NOT'],
+  challengeKeyHint: 'reservation_id',
+  footer: 'Next up: Lesson 4 covers BETWEEN, IN, LIKE and ILIKE.',
+  defaultSql: "SELECT reservation_id, hotel_name, country, segment, booking_status\nFROM reservations\nWHERE country = 'UAE'\n  AND booking_status = 'Confirmed';",
+  concepts: [
+    { h: 'AND', p: 'Both conditions must be true. Every AND you add can only remove rows.', code: "WHERE country = 'UAE'\n  AND booking_status = 'Confirmed'" },
+    { h: 'OR', p: 'At least one condition must be true. Every OR you add can only bring rows in.', code: "WHERE segment = 'Transient'\n   OR segment = 'Group'" },
+    { h: 'NOT', p: 'Flips a condition. Careful: NOT on an unknown (NULL) stays unknown, so that row is still dropped.', code: "WHERE NOT booking_status = 'Cancelled'" },
+    { h: 'Order of work', p: 'SQL applies NOT first, then AND, then OR. When you mix AND with OR, add brackets and say what you mean.', code: "WHERE country = 'UAE'\n  AND (segment = 'Transient'\n    OR segment = 'Group')" }
+  ],
+  examples: [
+    { label: 'AND', sql: "SELECT reservation_id, hotel_name, country, booking_status\nFROM reservations\nWHERE country = 'UAE'\n  AND booking_status = 'Confirmed';",
+      note: 'Both conditions must be TRUE. Switch on the row-by-row view below the results and look at which of the two conditions knocks each removed row out.' },
+    { label: 'OR', sql: "SELECT reservation_id, hotel_name, segment, booking_status\nFROM reservations\nWHERE segment = 'Transient'\n   OR segment = 'Group';",
+      note: 'A row stays as soon as one condition is TRUE. Corporate and Wholesale reservations are the only ones left out.' },
+    { label: 'NOT and the NULL trap', sql: "SELECT reservation_id, hotel_name, booking_status\nFROM reservations\nWHERE NOT booking_status = 'Cancelled';",
+      note: 'Look for reservations 1011, 1017 and 1026. They have no booking status. NOT (NULL = \'Cancelled\') is still NULL, and WHERE only keeps TRUE rows, so they vanish.' },
+    { label: 'Precedence trap', sql: "SELECT reservation_id, country, segment, booking_status\nFROM reservations\nWHERE booking_status = 'Confirmed'\n  AND country = 'UAE'\n  AND segment = 'Transient'\n   OR segment = 'Group';",
+      note: 'AND binds tighter than OR, so SQL reads this as (Confirmed AND UAE AND Transient) OR Group. Every Group reservation comes back, from every country and even the Cancelled one (1009). Check the tree below the results.' },
+    { label: 'Brackets fix', sql: "SELECT reservation_id, country, segment, booking_status\nFROM reservations\nWHERE booking_status = 'Confirmed'\n  AND country = 'UAE'\n  AND (segment = 'Transient'\n    OR segment = 'Group');",
+      note: 'The brackets make the OR one unit, and the other two conditions must hold alongside it. This is the question you meant to ask: confirmed UAE reservations that are Transient or Group.' },
+    { label: 'NOT with brackets', sql: "SELECT reservation_id, segment, channel\nFROM reservations\nWHERE NOT (segment = 'Wholesale' OR channel = 'OTA');",
+      note: 'NOT applies to everything inside the brackets. This is the same as segment <> \'Wholesale\' AND channel <> \'OTA\'. Flip one operator and you have to flip the other.' }
+  ],
+  challenges: [
+    { title: 'Cancelled in the UAE', table: 'reservations', key: 'reservation_id',
+      prompt: 'Find the Cancelled reservations in the UAE.',
+      starter: 'SELECT reservation_id\nFROM reservations\nWHERE ',
+      hint: 'Two conditions that must both be true. Which keyword joins them?',
+      solution: "SELECT reservation_id\nFROM reservations\nWHERE country = 'UAE'\n  AND booking_status = 'Cancelled'" },
+    { title: 'Corporate or Wholesale', table: 'reservations', key: 'reservation_id',
+      prompt: 'Find every reservation in the Corporate or Wholesale segment, whatever the country or status.',
+      starter: 'SELECT reservation_id\nFROM reservations\nWHERE ',
+      hint: 'A row only needs to match one of the two segments.',
+      solution: "SELECT reservation_id\nFROM reservations\nWHERE segment = 'Corporate'\n   OR segment = 'Wholesale'" },
+    { title: 'Confirmed in Qatar or Oman', table: 'reservations', key: 'reservation_id',
+      prompt: 'Find Confirmed reservations in Qatar or in Oman.',
+      starter: 'SELECT reservation_id\nFROM reservations\nWHERE ',
+      hint: 'You need AND and OR together. Put the two countries in brackets.',
+      solution: "SELECT reservation_id\nFROM reservations\nWHERE booking_status = 'Confirmed'\n  AND (country = 'Qatar' OR country = 'Oman')" },
+    { title: 'Not OTA, not Cancelled', table: 'reservations', key: 'reservation_id',
+      prompt: 'Find reservations that did not come through the OTA channel and are not Cancelled. Use NOT somewhere in your answer.',
+      starter: 'SELECT reservation_id\nFROM reservations\nWHERE ',
+      hint: 'NOT channel = \'OTA\' is one condition. Join it with a second condition on booking_status using AND.',
+      solution: "SELECT reservation_id\nFROM reservations\nWHERE NOT channel = 'OTA'\n  AND booking_status <> 'Cancelled'" },
+    { title: 'Everything not Cancelled', table: 'reservations', key: 'reservation_id',
+      prompt: 'Find all reservations that are not Cancelled, including the ones with a missing booking status.',
+      starter: 'SELECT reservation_id\nFROM reservations\nWHERE ',
+      hint: 'NULL <> \'Cancelled\' is unknown, so those rows drop out. Add a second route in with OR and IS NULL.',
+      solution: "SELECT reservation_id\nFROM reservations\nWHERE booking_status <> 'Cancelled'\n   OR booking_status IS NULL" }
+  ]
+};
+
+/* ---------- UI ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function cell(v) {
+  if (v === null) return '<td><span class="null">NULL</span></td>';
+  if (typeof v === 'number') return `<td class="num">${v}</td>`;
+  return `<td>${esc(v)}</td>`;
+}
+function renderTable(cols, rows) {
+  if (!rows.length) return '<div class="empty">0 rows returned. Nothing matched the WHERE condition.</div>';
+  return `<div class="tw"><table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(cell).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+const vchip = v => v === true ? '<span class="v T">TRUE</span>' : v === false ? '<span class="v F">FALSE</span>' : '<span class="v N">NULL</span>';
+
+function renderReads(res) {
+  const w = res.q.where;
+  if (!w) return '';
+  const lines = treeLines(w, '', true, true).map(l =>
+    esc(l.prefix) + (l.op ? `<span class="op">${l.label}</span>` : esc(l.label))).join('\n');
+  const warn = relyOnPrecedence(w)
+    ? '<div class="warn">This mixes AND with OR without brackets, so SQL groups the AND parts first. Check that the tree below is what you meant.</div>' : '';
+  return `<div class="reads"><h3>How SQL reads your WHERE</h3><div class="line">${esc(fmt(w, false))}</div><pre>${lines}</pre>${warn}</div>`;
+}
+function renderTrace(res) {
+  const t = traceFor(res);
+  if (!t) return '<div class="empty">This query has no WHERE, so every row is returned.</div>';
+  const head = t.showCols.map(c => `<th>${esc(c)}</th>`).join('') + t.leafLabels.map(l => `<th>${esc(l)}</th>`).join('') + '<th>WHERE result</th>';
+  const body = t.rows.map(r => {
+    const kept = r.final === true;
+    return `<tr class="${kept ? 'kept' : 'dim'}">${r.vals.map(v => v === null ? '<td><span class="null">NULL</span></td>' : `<td class="val${typeof v === 'number' ? ' num' : ''}">${esc(v)}</td>`).join('')}${r.leaf.map(v => `<td>${vchip(v)}</td>`).join('')}<td>${vchip(r.final)}</td></tr>`;
+  }).join('');
+  return `<div class="legend"><span class="v T">TRUE</span>row is kept &nbsp; <span class="v F">FALSE</span>row is removed &nbsp; <span class="v N">NULL</span>unknown, so the row is removed too</div><div class="tw"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function init(cfg) {
+  const app = $('#app');
+  const tableNames = Object.keys(TABLES);
+  app.innerHTML = `
+  <div class="top">
+    <div>
+      <div class="series">SQL for Hospitality Analytics &middot; Lesson ${cfg.n}</div>
+      <h1>${esc(cfg.title)}</h1>
+      <p class="lede">${esc(cfg.lede)}</p>
+      <div class="kw">${cfg.kw.map(k => `<span>${esc(k)}</span>`).join('')}</div>
+    </div>
+    <button class="theme" id="theme" type="button">Switch theme</button>
+  </div>
+
+  <section>
+    <h2>The idea</h2>
+    <div class="concepts">${cfg.concepts.map(c => `<div class="concept"><h3>${esc(c.h)}</h3><p>${esc(c.p)}</p><pre>${esc(c.code)}</pre></div>`).join('')}</div>
+  </section>
+
+  <section>
+    <h2>Playground</h2>
+    <p class="sec-sub">Pick an example, change it, and run it. Turn on the row-by-row view to see exactly why each row stays or goes.</p>
+    <div class="panel">
+      <div class="schema">${tableNames.map(n => `<div class="tbl"><b>${n}</b> &nbsp;${TABLES[n].cols.map(c => `<button type="button" class="colchip" data-col="${c.name}" title="${c.type}">${c.name}</button>`).join('')}</div>`).join('')}</div>
+      <div class="examples" id="examples">${cfg.examples.map((e, i) => `<button type="button" class="chip" data-i="${i}">${esc(e.label)}</button>`).join('')}</div>
+      <textarea class="ed" id="ed" spellcheck="false" aria-label="SQL editor">${esc(cfg.defaultSql)}</textarea>
+      <div class="bar">
+        <button class="btn" id="run" type="button">Run query</button>
+        <button class="btn ghost" id="reset" type="button">Reset</button>
+        <span class="kbd">Ctrl/Cmd + Enter to run</span>
+      </div>
+      <div id="note"></div>
+      <div id="out"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="ch-head"><h2>Challenges</h2><div class="prog" id="prog"></div></div>
+    <p class="sec-sub">Each answer is checked against the rows it should return, so there is more than one right way to write it. Include <code>${cfg.challengeKeyHint}</code> in your SELECT so the check can compare.</p>
+    <div id="chals"></div>
+  </section>
+
+  <footer>
+    <p>Every query here also runs in Snowflake and PostgreSQL. This tool is a small SQL engine that runs in your browser and understands SELECT, FROM, WHERE, ORDER BY and LIMIT. The data is made up.</p>
+    <p>${esc(cfg.footer)}</p>
+  </footer>`;
+
+  const ed = $('#ed');
+  let activeEx = -1;
+
+  function renderResult(sql, opts) {
+    const out = $('#out');
+    try {
+      const res = runQuery(sql);
+      const w = res.q.where;
+      let s = `<div class="status"><b>${res.rows.length} ${res.rows.length === 1 ? 'row' : 'rows'}</b> returned from ${res.q.tbl ? '' : ''}${esc(res.tbl.name)}`;
+      if (w) s += ` &middot; WHERE kept ${res.afterWhere} of ${res.total} rows`;
+      if (res.q.limit !== null && res.afterWhere > res.q.limit) s += ` &middot; LIMIT ${res.q.limit} trimmed it`;
+      s += '</div>';
+      const showTrace = $('#trace') ? $('#trace').checked : false;
+      out.innerHTML = s + renderTable(res.cols, res.rows) + renderReads(res) +
+        (w ? `<label class="tog"><input type="checkbox" id="trace" ${showTrace ? 'checked' : ''}> Show why each row passed or failed</label><div id="tracebox"></div>` : '');
+      if (w) {
+        const box = $('#tracebox'), cb = $('#trace');
+        const draw = () => { box.innerHTML = cb.checked ? renderTrace(res) : ''; };
+        cb.addEventListener('change', draw); draw();
+      }
+    } catch (e) {
+      if (e instanceof SqlError) out.innerHTML = `<div class="err"><b>Check your query.</b> ${esc(e.message)}</div>`;
+      else { out.innerHTML = `<div class="err">Something unexpected went wrong: ${esc(e.message)}</div>`; console.error(e); }
+    }
+  }
+  const run = () => renderResult(ed.value);
+  $('#run').addEventListener('click', run);
+  $('#reset').addEventListener('click', () => { ed.value = cfg.defaultSql; activeEx = -1; setChips(); $('#note').innerHTML = ''; run(); });
+  ed.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
+    else if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); const s = ed.selectionStart; ed.setRangeText('  ', s, ed.selectionEnd, 'end'); }
+  });
+  function setChips() { document.querySelectorAll('#examples .chip').forEach((c, i) => c.classList.toggle('on', i === activeEx)); }
+  $('#examples').addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    activeEx = Number(b.dataset.i); const ex = cfg.examples[activeEx];
+    ed.value = ex.sql; setChips();
+    $('#note').innerHTML = `<div class="note">${esc(ex.note)}</div>`;
+    run();
+  });
+  document.querySelectorAll('.colchip').forEach(b => b.addEventListener('click', () => {
+    const s = ed.selectionStart; ed.setRangeText(b.dataset.col, s, ed.selectionEnd, 'end'); ed.focus();
+  }));
+
+  /* theme */
+  const root = document.documentElement;
+  $('#theme').addEventListener('click', () => {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+  });
+
+  /* challenges */
+  const solved = new Set();
+  const prog = () => { $('#prog').innerHTML = `<b>${solved.size}</b> of ${cfg.challenges.length} solved`; };
+  $('#chals').innerHTML = cfg.challenges.map((c, i) => `
+    <div class="panel chal" data-i="${i}">
+      <div class="ttl"><h3>${i + 1}. ${esc(c.title)}</h3><span class="done" hidden>Solved</span></div>
+      <p class="q">${esc(c.prompt)}</p>
+      <textarea class="ed" spellcheck="false" aria-label="Your answer for challenge ${i + 1}">${esc(c.starter)}</textarea>
+      <div class="bar">
+        <button class="btn" data-act="check" type="button">Run and check</button>
+        <button class="btn ghost" data-act="hint" type="button">Hint</button>
+        <button class="btn ghost" data-act="sol" type="button">Show solution</button>
+      </div>
+      <div class="reveal" data-slot="hint" hidden>${esc(c.hint)}</div>
+      <div class="reveal" data-slot="sol" hidden>One way to write it:<pre>${esc(c.solution)}</pre></div>
+      <div data-slot="fb"></div>
+    </div>`).join('');
+  prog();
+
+  function checkChallenge(c, sql) {
+    let mine;
+    try { mine = runQuery(sql); } catch (e) {
+      return { ok: false, msg: e instanceof SqlError ? e.message : 'Something went wrong running that query.', res: null };
+    }
+    const sol = runQuery(c.solution);
+    if (mine.tbl.name !== c.table) return { ok: false, msg: `This one uses the ${c.table} table.`, res: mine };
+    const ki = mine.cols.findIndex(x => x.toLowerCase() === c.key);
+    if (ki < 0) return { ok: false, msg: `Include ${c.key} in your SELECT so I can compare your rows.`, res: mine };
+    const si = sol.cols.findIndex(x => x.toLowerCase() === c.key);
+    const a = new Set(mine.rows.map(r => r[ki])), b = new Set(sol.rows.map(r => r[si]));
+    const missing = [...b].filter(x => !a.has(x)), extra = [...a].filter(x => !b.has(x));
+    if (!missing.length && !extra.length) return { ok: true, msg: `Correct. ${b.size} rows, exactly the ones expected.`, res: mine };
+    const parts = [];
+    if (missing.length) parts.push(`${missing.length} ${missing.length === 1 ? 'row is' : 'rows are'} missing (for example ${missing.slice(0, 2).join(', ')})`);
+    if (extra.length) parts.push(`${extra.length} ${extra.length === 1 ? 'row shouldn\u2019t' : 'rows shouldn\u2019t'} be there (for example ${extra.slice(0, 2).join(', ')})`);
+    return { ok: false, msg: 'Not quite: ' + parts.join(', and ') + '.', res: mine };
+  }
+  $('#chals').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-act]'); if (!btn) return;
+    const card = btn.closest('.chal'); const i = Number(card.dataset.i); const c = cfg.challenges[i];
+    const act = btn.dataset.act;
+    if (act === 'hint') card.querySelector('[data-slot="hint"]').hidden = false;
+    if (act === 'sol') card.querySelector('[data-slot="sol"]').hidden = false;
+    if (act === 'check') {
+      const r = checkChallenge(c, card.querySelector('textarea').value);
+      const fb = card.querySelector('[data-slot="fb"]');
+      fb.innerHTML = `<div class="fb ${r.ok ? 'ok' : 'no'}">${esc(r.msg)}</div>` + (r.res ? `<div style="margin-top:10px">${renderTable(r.res.cols, r.res.rows)}</div>` : '');
+      if (r.ok) { solved.add(i); card.querySelector('.done').hidden = false; prog(); }
+    }
+  });
+  card_keys();
+  function card_keys() {
+    $('#chals').addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { const b = e.target.closest('.chal'); if (b) { e.preventDefault(); b.querySelector('[data-act="check"]').click(); } }
+      else if (e.key === 'Tab' && !e.shiftKey && e.target.tagName === 'TEXTAREA') { e.preventDefault(); const t = e.target; t.setRangeText('  ', t.selectionStart, t.selectionEnd, 'end'); }
+    });
+  }
+  run();
+}
+
+init(CFG);
+</script>
+</body>
+</html>
