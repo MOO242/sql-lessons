@@ -51,7 +51,7 @@ Runs as-is in both Snowflake and PostgreSQL.
 | 2 | Filtering rows | `WHERE`, comparison operators | ✅ Done |
 | 3 | Combining conditions | `AND`, `OR`, `NOT` |  ✅ Done |
 | 4 | Ranges, lists, and patterns | `BETWEEN`, `IN`, `LIKE`, `ILIKE` |  ✅ Done |
-| 5 | Unique rows | `DISTINCT` | Planned |
+| 5 | Unique rows | `DISTINCT` | ✅ Done |
 | 6 | How SQL really runs | Execution order | Planned |
 | 7 | Snowflake vs PostgreSQL | Dialect differences | Planned |
 | 8 | Defining tables | Data types, `CREATE`, `ALTER`, `DROP` | Planned |
