@@ -1,0 +1,33 @@
+SQL Lesson 7: Unique Rows with DISTINCT. 
+
+Same reservations. Very different numbers, depending on whether you count rows or guests.
+
+I've seen one question trip up reports more than almost any other: 
+
+"How many unique ___ do we have?" How many hotels sold Group business last month? How many different guests booked with us this year? Reservation tables repeat the same values constantly, and DISTINCT is how you return each one once.
+
+1️⃣ Unique values
+SQL
+SELECT DISTINCT market_segment
+FROM reservations;
+This returns Corporate, Group, Leisure and Transient once each, however many reservations there are.
+
+2️⃣ Unique combinations (it applies to the whole row, not one column)
+SQL
+SELECT DISTINCT hotel_name, market_segment
+FROM reservations;
+
+3️⃣ Unique counts
+SQL
+SELECT COUNT(DISTINCT guest_id) AS unique_guests
+FROM reservations;
+
+💡 Concept tip: DISTINCT looks at the entire row you select. Add a column, and you change what counts as "unique". NULL is treated as one value in SELECT DISTINCT, but COUNT(DISTINCT col) ignores NULLs.
+
+⚠️ Business consequence: Counting reservations instead of unique guests makes repeat guests look like new demand. Using DISTINCT to hide duplicates caused by a bad JOIN is just as risky. It can hide a data problem while the revenue totals stay wrong.
+
+Dialect note (works in both Snowflake and PostgreSQL):
+DISTINCT and COUNT(DISTINCT ...) behave the same in both.
+SELECT DISTINCT ON (col) is PostgreSQL only. In Snowflake, use QUALIFY ROW_NUMBER() OVER (...) = 1.
+
+Key takeaways: ✅ DISTINCT changes the result, not the table ✅ It applies to the whole row ✅ COUNT(DISTINCT ...) counts unique values ✅ Fix the cause of duplicates; don't just hide them  
