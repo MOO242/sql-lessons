@@ -1,0 +1,31 @@
+## Lesson 7 — Snowflake vs PostgreSQL
+
+SQL Lesson 7: Same SQL, different dialects 🏨
+
+After nearly a decade in hotel revenue and commercial operations, I’ve learned one thing: a query that works on one platform can break on another.
+
+This series uses Snowflake and PostgreSQL. 90% is the same. The 10% that isn’t will catch you out.
+
+Pull the top 10 reservations by revenue:
+
+SELECT reservation_id, hotel_name, room_revenue
+FROM reservations
+ORDER BY room_revenue DESC
+LIMIT 10;
+
+Works in both. TOP 10 is SQL Server only.
+
+Key differences to know:
+→ Unquoted names: Snowflake stores them UPPERCASE, PostgreSQL lowercase
+→ Both support DATE_TRUNC, LIMIT, ILIKE
+→ Snowflake has QUALIFY; PostgreSQL doesn’t
+
+💡 Avoid double quotes around column names unless you have to. Quoted names become case-sensitive.
+
+⚠️ A RevPAR report built on one platform and copied to another can fail silently or return nothing because of a case mismatch.
+
+Full lesson and scripts in the first comment 👇
+
+Next lesson: Defining tables — data types, CREATE, ALTER, DROP.
+
+#SQL #Snowflake #PostgreSQL #DataAnalytics #HotelIndustry #RevenueManagement
