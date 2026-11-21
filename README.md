@@ -53,7 +53,7 @@ Runs as-is in both Snowflake and PostgreSQL.
 | 4 | Ranges, lists, and patterns | `BETWEEN`, `IN`, `LIKE`, `ILIKE` |  ✅ Done |
 | 5 | Unique rows | `DISTINCT` | ✅ Done |
 | 6 | How SQL really runs | Execution order | Planned |
-| 7 | Snowflake vs PostgreSQL | Dialect differences | Planned |
+| 7 | Snowflake vs PostgreSQL | Dialect differences | ✅ Done |
 | 8 | Defining tables | Data types, `CREATE`, `ALTER`, `DROP` | Planned |
 | 9 | Changing data | `INSERT`, `UPDATE`, `DELETE` | Planned |
 | 10 | Joining tables | `INNER`, `LEFT`, `RIGHT`, `FULL JOIN` | Planned |
